@@ -1,0 +1,13 @@
+--- subsystems.orig/linux/configs/device-tree/system-top.dts	2015-08-27 02:53:11.077065085 -0700
++++ subsystems/linux/configs/device-tree/system-top.dts	2015-08-27 02:52:05.499163075 -0700
+@@ -3,3 +3,9 @@
+ / {
+ };
+ 
++&usb0 {
++        dr_mode = "peripheral";
++        phy_type = "ulpi";
++        status = "okay";
++};
++
+
