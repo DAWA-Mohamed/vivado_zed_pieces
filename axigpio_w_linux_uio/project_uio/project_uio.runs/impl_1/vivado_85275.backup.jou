@@ -1,0 +1,10 @@
+#-----------------------------------------------------------
+# Vivado v2014.4 (64-bit)
+# SW Build 1071353 on Tue Nov 18 16:47:07 MST 2014
+# IP Build 1070531 on Tue Nov 18 01:10:18 MST 2014
+# Start of session at: Sun Aug 23 19:56:01 2015
+# Process ID: 82699
+# Log file: /home/sukinull/Build/project_basex/project_basex.runs/impl_1/base_zynq_design_wrapper.vdi
+# Journal file: /home/sukinull/Build/project_basex/project_basex.runs/impl_1/vivado.jou
+#-----------------------------------------------------------
+source base_zynq_design_wrapper.tcl -notrace
