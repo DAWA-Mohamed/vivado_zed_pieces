@@ -1,5 +1,10 @@
 /dts-v1/;
 /include/ "system-conf.dtsi"
 / {
+    amba_pl {
+        gpio@41200000 {
+            compatible = "generic-uio";
+        };
+    };
 };
 
