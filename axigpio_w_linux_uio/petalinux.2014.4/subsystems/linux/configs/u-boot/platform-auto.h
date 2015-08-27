@@ -6,6 +6,11 @@
 #ifndef __PLNX_CONFIG_H
 #define __PLNX_CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+
+/* Board oscillator frequency */
+#define CONFIG_ZYNQ_PS_CLK_FREQ	33333333UL
+
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE  {9600, 19200, 38400, 57600, 115200, 230400}
 
@@ -14,7 +19,7 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV 1
 
 /* Board name */
-#define XILINX_BOARD_NAME	Xilinx-ZC702-2014_2
+#define XILINX_BOARD_NAME	petalinux.2014.4
 #define CONFIG_HOSTNAME	XILINX_BOARD_NAME
 
 /* processor - ps7_cortexa9_0 */
@@ -28,14 +33,14 @@
 #define CONFIG_SYS_CACHELINE_SIZE	32
 #define CONFIG_SYS_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot.lds"
 
-/* main_memory_multibank - ps7_ddr_0 */
-#define CONFIG_NR_DRAM_BANKS	1
+/* main_memory - ps7_ddr_0 */
 #define CONFIG_SYS_SDRAM_BASE	0x0
-#define CONFIG_SYS_SDRAM_SIZE	0x40000000
+#define CONFIG_SYS_SDRAM_SIZE	0x20000000
 
 /* Memory testing handling */
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END	(CONFIG_SYS_SDRAM_BASE + 0x1000)
+#define CONFIG_NR_DRAM_BANKS	1
 
 /* Size of malloc() pool */
 #define SIZE	0x400000
@@ -73,15 +78,14 @@
 #define CONFIG_CMD_NET
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_ETHADDR	00:0a:35:00:a3:5d
-#define CONFIG_SERVERIP	172.16.162.22
+#define CONFIG_ETHADDR	00:0a:35:00:a3:c2
+#define CONFIG_SERVERIP	192.168.1.115
 #define CONFIG_IPADDR
 
 /* spi_flash - ps7_qspi_0 */
 #define XILINX_PS7_QSPI_CLK_FREQ_HZ	200000000
 #define CONFIG_SF_DEFAULT_SPEED	(XILINX_PS7_QSPI_CLK_FREQ_HZ / 4)
 #define CONFIG_ZYNQ_QSPI
-#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DUAL_FLASH
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_SF
@@ -90,6 +94,7 @@
 #define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_ENV_OFFSET	0x500000
@@ -111,8 +116,10 @@
 
 /* devcfg - ps7_dev_cfg_0 */
 #define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
 #define CONFIG_CMD_FPGA
+#define CONFIG_FPGA_LOADFS
 
 /* FPGA */
 
@@ -161,7 +168,7 @@
 
 /* FIT image support */
 #define CONFIG_FIT	1
-#define CONFIG_LMB	1
+#define CONFIG_LMB
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
@@ -177,32 +184,34 @@
 	CONSOLE_ARG \
 	PSSERIAL0 \
 	"nc=setenv stdout nc;setenv stdin nc;\0" \
+	"sdboot=echo boot Petalinux; mmcinfo && fatload mmc 0 ${netstart} ${kernel_img} && bootm \0" \
 	"autoload=no\0" \
 	"clobstart=0x01000000\0" \
 	"netstart=0x01000000\0" \
 	"dtbnetstart=0x02800000\0" \
 	"loadaddr=0x01000000\0" \
-	"bootsize=0x500000\0" \
-	"bootstart=0x0\0" \
 	"boot_img=BOOT.BIN\0" \
 	"load_boot=tftp ${clobstart} ${boot_img}\0" \
-	"update_boot=setenv img boot; setenv psize ${bootsize}; setenv installcmd \"install_boot\"; run load_boot test_img; setenv img; setenv psize; setenv installcmd\0" \
-	"sd_update_boot=echo Updating boot from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${boot_img} && run install_boot\0" \
-	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \
-		"sf write ${clobstart} ${bootstart} ${filesize}\0" \
+	"update_boot=setenv img boot; setenv psize ${bootsize}; setenv installcmd \"install_boot\"; run load_boot ${installcmd}; setenv img; setenv psize; setenv installcmd\0" \
+	"install_boot=mmcinfo && fatwrite mmc 0 ${clobstart} ${boot_img} ${filesize}\0" \
 	"bootenvsize=0x20000\0" \
 	"bootenvstart=0x500000\0" \
 	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \
-	"kernelsize=0xa80000\0" \
-	"kernelstart=0x520000\0" \
+	"jffs2_img=rootfs.jffs2\0" \
+	"load_jffs2=tftp ${clobstart} ${jffs2_img}\0" \
+	"update_jffs2=setenv img jffs2; setenv psize ${jffs2size}; setenv installcmd \"install_jffs2\"; run load_jffs2 test_img; setenv img; setenv psize; setenv installcmd\0" \
+	"sd_update_jffs2=echo Updating jffs2 from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${jffs2_img} && run install_jffs2\0" \
+	"install_jffs2=sf probe 0 && sf erase ${jffs2start} ${jffs2size} && " \
+		"sf write ${clobstart} ${jffs2start} ${filesize}\0" \
 	"kernel_img=image.ub\0" \
 	"load_kernel=tftp ${clobstart} ${kernel_img}\0" \
-	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel test_crc; setenv img; setenv psize; setenv installcmd\0" \
-	"sd_update_kernel=echo Updating kernel from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${kernel_img} && run install_kernel\0" \
-	"install_kernel=sf probe 0 && sf erase ${kernelstart} ${kernelsize} && " \
-		"sf write ${clobstart} ${kernelstart} ${filesize}\0" \
-	"cp_kernel2ram=sf probe 0 && sf read ${netstart} ${kernelstart} ${kernelsize}\0" \
-	"sdboot=echo boot Petalinux; mmcinfo && fatload mmc 0 ${netstart} ${kernel_img} && bootm \0" \
+	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel ${installcmd}; setenv img; setenv psize; setenv installcmd\0" \
+	"install_kernel=mmcinfo && fatwrite mmc 0 ${clobstart} ${kernel_img} ${filesize}\0" \
+	"cp_kernel2ram=mmcinfo && fatload mmc 0 ${netstart} ${kernel_img}\0" \
+	"dtb_img=system.dtb\0" \
+	"load_dtb=tftp ${clobstart} ${dtb_img}\0" \
+	"update_dtb=setenv img dtb; setenv psize ${dtbsize}; setenv installcmd \"install_dtb\"; run load_dtb test_img; setenv img; setenv psize; setenv installcmd\0" \
+	"sd_update_dtb=echo Updating dtb from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${dtb_img} && run install_dtb\0" \
 	"fault=echo ${img} image size is greater than allocated place - partition ${img} is NOT UPDATED\0" \
 	"test_crc=if imi ${clobstart}; then run test_img; else echo ${img} Bad CRC - ${img} is NOT UPDATED; fi\0" \
 	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \

@@ -9,7 +9,7 @@
 /include/ "pl.dtsi"
 
 / {
-	model = "Xilinx-ZC702-2014.4";
+	model = "petalinux.2014.4";
 	aliases {
 		serial0 = &uart1;
 		ethernet0 = &gem0;
@@ -19,12 +19,12 @@
 	};
 	memory {
 		device_type = "memory";
-		reg = <0x0 0x40000000>;
+		reg = <0x0 0x20000000>;
 	};
 };
 
 &gem0 {
-	local-mac-address = [00 0a 35 00 a3 46];
+	local-mac-address = [00 0a 35 00 a3 c2];
 };
 
 &qspi {
